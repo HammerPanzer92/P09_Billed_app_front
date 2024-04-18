@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "test": "jest --coverage --noStackTrace --silent --json --outputFile=resulttest.json"
+    "test": "jest --coverage --noStackTrace --silent=false --json --outputFile=resulttest.json"
   },
   "jest": {
     "verbose": false,
