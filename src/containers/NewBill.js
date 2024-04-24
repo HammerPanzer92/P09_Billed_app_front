@@ -1,6 +1,8 @@
 import { ROUTES_PATH } from '../constants/routes.js'
 import Logout from "./Logout.js"
 
+const isPicture = (mimeType) => ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'].includes(mimeType);
+
 export default class NewBill {
   constructor({ document, onNavigate, store, localStorage }) {
     this.document = document
@@ -18,12 +20,22 @@ export default class NewBill {
   handleChangeFile = e => {
     e.preventDefault()
     const file = this.document.querySelector(`input[data-testid="file"]`).files[0]
+
+    try{
+      if(!isPicture(file.type)){
+        this.document.querySelector(`input[data-testid="file"]`).value = "";
+        throw new Error("Invalid file");
+      }
+    }catch(err){
+      console.error(err);
+    }
+
     const filePath = e.target.value.split(/\\/g)
     const fileName = filePath[filePath.length-1]
     const formData = new FormData()
     const email = JSON.parse(localStorage.getItem("user")).email
     formData.append('file', file)
-    formData.append('email', email)
+    formData.append('email', email)   
 
     this.store
       .bills()
