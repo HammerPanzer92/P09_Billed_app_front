@@ -12,8 +12,8 @@ describe("Given I am connected as an employee", () => {
       const html = NewBillUI();
       document.body.innerHTML = html;
 
-      //Nécessaire pour init la fonction handleChangeFile (?)
-      const newBill = new NewBill({
+      //Nécessaire pour init la fonction handleChangeFile
+      new NewBill({
         document,
       });
 
