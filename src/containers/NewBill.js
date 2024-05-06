@@ -44,16 +44,16 @@ export default class NewBill {
           },
         })
         .then(({ fileUrl, key }) => {
-          console.log(fileUrl);
           this.billId = key;
           this.fileUrl = fileUrl;
           this.fileName = fileName;
+          console.log(this.fileUrl);
         })
         .catch((error) => console.error(error));
     }else{
       fileInput.value = "";
       errorMsg.style.display = "block";
-      console.error("Invalid file");
+      console.error("Invalid file : file must be a jpg, jpeg, png or gif image");
     }
   };
   handleSubmit = (e) => {
