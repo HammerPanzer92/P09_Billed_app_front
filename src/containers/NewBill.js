@@ -3,6 +3,7 @@ import Logout from "./Logout.js";
 
 const isPicture = (mimeType) =>
   ["image/jpeg", "image/jpg", "image/png", "image/gif"].includes(mimeType);
+const extensionArray = ["jpg", "jpeg", "png", "gif"];
 
 export default class NewBill {
   constructor({ document, onNavigate, store, localStorage }) {
@@ -27,7 +28,11 @@ export default class NewBill {
     errorMsg.style.display = "none";
     const file = fileInput.files[0];
 
-    if (isPicture(file.type)) {
+    //Récupération de l'extension pour vérification
+    const fileExt = fileSplit[fileSplit.length - 1];
+
+    //On vérifie l'extension et le mimetype du fichier
+    if (extensionArray.includes(fileExt) && isPicture(file.type)) {
       const filePath = e.target.value.split(/\\/g);
       const fileName = filePath[filePath.length - 1];
       const formData = new FormData();

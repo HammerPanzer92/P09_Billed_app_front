@@ -12,9 +12,6 @@ import mockStore from "../__mocks__/store.js";
 import { ROUTES_PATH, ROUTES } from "../constants/routes.js";
 import userEvent from "@testing-library/user-event";
 
-function sleep(ms){
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
 
 describe("Given I am connected as an employee", () => {
   describe("When I am on NewBill Page", () => {
@@ -65,6 +62,13 @@ describe("Given I am connected as an employee", () => {
         },
       });
 
+      /*      
+      await new Promise(resolve => process.nextTick(resolve)); semble bloquer le test dans certains cas
+      a la place un timeout très bref est utilisé pour s'assurer que l'objet newBill a bien fini de traiter
+      le fichier
+      */
+      await new Promise(resolve => setTimeout(resolve, 0)); 
+
       //Si la propriété fileUrl de newBill est null, alors le fichier n'a pas été enregistré et un message d'erreur devrait s'afficher sur la page
       //Note : l'erreur "invalid file" dans la console est normale
       expect(newBill.fileUrl).toBeNull();
@@ -94,7 +98,12 @@ describe("Given I am connected as an employee", () => {
 
       expect(inputFile.files[0].name).toBe("testUpload.jpg");
 
-      await sleep(2);
+      /*      
+      await new Promise(resolve => process.nextTick(resolve)); semble bloquer le test dans certains cas
+      a la place un timeout très bref est utilisé pour s'assurer que l'objet newBill a bien fini de traiter
+      le fichier
+      */
+      await new Promise(resolve => setTimeout(resolve, 0));    
 
       //Si l'envoie a fonctionné, alors l'objet newBill doit avoir une valeur non vide dans fileUrl
       expect(newBill.fileUrl).toBeTruthy();
@@ -116,11 +125,14 @@ describe("Given I am connected as an employee", () => {
         store: mockStore,
       });
 
+      //On surveille la fonction qui gère le formulaire
       const handleSubmitSpy = jest.spyOn(newBill, "handleSubmit");
 
+      //Initialisation du bouton d'envoye
       const formNewBill = screen.getByTestId("form-new-bill");
       formNewBill.addEventListener("submit", newBill.handleSubmit);
 
+      //Récupération des inputs
       const inputExpenseType = screen.getByTestId("expense-type");
       const inputExpenseName = screen.getByTestId("expense-name");
       const inputDatepicker = screen.getByTestId("datepicker");
@@ -172,11 +184,48 @@ describe("Given I am connected as an employee", () => {
       expect(inputCommentary.value).toBe(inputData.commentary);
       expect(inputFile.files[0]).toBe(inputData.file);
 
+      //Déclenchement de l'envoi du formulaire
       fireEvent.submit(formNewBill);
 
+      //Si le texte "Mes notes de frais" est affiché alors on a bien été redirigé vers la page des factures
       await waitFor(() => screen.getByText("Mes notes de frais"));
       expect(screen.getByText("Mes notes de frais")).toBeTruthy();
       expect(handleSubmitSpy).toHaveBeenCalled();
+    });
+  });
+});
+
+describe("Given I am connected as an employee on the dashboard", () => {
+  describe("When an user create a new bill", () => {
+    test("Then add a bill from mock API POST", async () =>{
+      //Espionnage de l'API
+      const postSpy = jest.spyOn(mockStore, "bills");
+
+      //Création d'une facture fictive de test
+      const bill = {
+        "id": "47qAXb6fIm2zOKkLzMro",
+        "vat": "80",
+        "fileUrl": "https://firebasestorage.googleapis.com/v0/b/billable-677b6.a…f-1.jpg?alt=media&token=c1640e12-a24b-4b11-ae52-529112e9602a",
+        "status": "pending",
+        "type": "Hôtel et logement",
+        "commentary": "séminaire billed",
+        "name": "encore",
+        "fileName": "preview-facture-free-201801-pdf-1.jpg",
+        "date": "2004-04-04",
+        "amount": 400,
+        "commentAdmin": "ok",
+        "email": "a@a",
+        "pct": 20
+      };
+
+      //Mise à jour de la facture via l'API
+      const postBills = await mockStore.bills().update(bill);
+
+      //Vérification que l'API a bien été appelé
+      expect(postSpy).toHaveBeenCalled();
+
+      //Vérification que la facture reçu correspond a celle envoyé
+      expect(postBills).toStrictEqual(bill);
     });
   });
 });

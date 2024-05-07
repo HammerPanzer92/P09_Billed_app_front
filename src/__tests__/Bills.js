@@ -183,7 +183,8 @@ describe("Given I am connected as an employee", () => {
 
           //Génération d'une erreur 404 via la fonction mocké
           mockApiError(ERROR_404);
-          await new Promise(process.nextTick);
+          //Délai le temps de l'execution de mockApiError
+          await new Promise(resolve => setTimeout(resolve, 0));
           const message = await screen.getByText(/Erreur 404/);
           expect(message).toBeTruthy();
         });
@@ -192,7 +193,7 @@ describe("Given I am connected as an employee", () => {
         test(`Then retrieving messages from an API and failing with error message ${ERROR_500}`, async () => {
           //Générration de l'erreur via la fonction mocké
           mockApiError(ERROR_500);
-          await new Promise(process.nextTick);
+          await new Promise(resolve => setTimeout(resolve, 0));
           const message = await screen.getByText(/Erreur 500/);
           expect(message).toBeTruthy();
         });
