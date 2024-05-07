@@ -47,7 +47,7 @@ export default class NewBill {
           this.billId = key;
           this.fileUrl = fileUrl;
           this.fileName = fileName;
-          console.log(this.fileUrl);
+          console.log("URL newbill : " + this.fileUrl);
         })
         .catch((error) => console.error(error));
     }else{

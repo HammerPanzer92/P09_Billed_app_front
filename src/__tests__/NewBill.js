@@ -12,6 +12,10 @@ import mockStore from "../__mocks__/store.js";
 import { ROUTES_PATH, ROUTES } from "../constants/routes.js";
 import userEvent from "@testing-library/user-event";
 
+function sleep(ms){
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 describe("Given I am connected as an employee", () => {
   describe("When I am on NewBill Page", () => {
     //Test de la surbrillance de l'icône
@@ -31,7 +35,7 @@ describe("Given I am connected as an employee", () => {
       router();
       window.onNavigate(ROUTES_PATH.NewBill);
 
-      await waitFor(() => screen.getByTestId("icon-mail"));
+      await waitFor(() => screen.findByTestId("icon-mail"));
       const iconMail = screen.getByTestId("icon-mail");
 
       expect(iconMail.classList.contains("active-icon")).toBeTruthy();
@@ -44,12 +48,12 @@ describe("Given I am connected as an employee", () => {
       document.body.innerHTML = html;
 
       //Nécessaire pour init la fonction handleChangeFile
-      const newbill = new NewBill({
+      const newBill = new NewBill({
         document,
       });
 
       //Récupération de l'input
-      const inputFile = await screen.getByTestId("file");
+      const inputFile = await screen.findByTestId("file");
 
       //Création d'un fichier text
       const file = new File(["test"], "test.txt", { type: "text/plain" });
@@ -61,9 +65,9 @@ describe("Given I am connected as an employee", () => {
         },
       });
 
-      //Si la propriété fileUrl de newbill est null, alors le fichier n'a pas été enregistré et un message d'erreur devrait s'afficher sur la page
+      //Si la propriété fileUrl de newBill est null, alors le fichier n'a pas été enregistré et un message d'erreur devrait s'afficher sur la page
       //Note : l'erreur "invalid file" dans la console est normale
-      expect(newbill.fileUrl).toBeNull();
+      expect(newBill.fileUrl).toBeNull();
       expect(screen.getByTestId("errorMsg")).toBeVisible();
     });
 
@@ -82,22 +86,25 @@ describe("Given I am connected as an employee", () => {
       });
       const inputFile = await screen.findByTestId("file");
 
-      const file = new File(["test"], "test.jpg", { type: "image/jpg" });
+      const file = new File(["test"], "testUpload.jpg", { type: "image/jpg" });
 
       userEvent.upload(inputFile, file);
 
       expect(inputFile.files.length).toEqual(1);
 
-      expect(inputFile.files[0].name).toBe("test.jpg");
+      expect(inputFile.files[0].name).toBe("testUpload.jpg");
 
-      console.log("url : " + newBill.fileUrl);
+      await sleep(2);
 
-      // Vérifier si le nom de fichier dans newBill correspond à "file.jpg".
-      expect(newBill.fileName).toBe("test.jpg");
+      //Si l'envoie a fonctionné, alors l'objet newBill doit avoir une valeur non vide dans fileUrl
+      expect(newBill.fileUrl).toBeTruthy();
+      expect(screen.getByTestId("errorMsg")).not.toBeVisible();
     });
 
     // Test de soumission d'une nouvelle facture et redirection vers "Bills"
-    test("Submitting a correct form should call handleSubmit method and redirect user on Bill page", async () => {
+    test("Then submitting a correct form should call handleSubmit method and redirect user on Bill page", async () => {
+      document.body.innerHTML = NewBillUI();
+
       // Navigation et soumission du formulaire
       const onNavigate = (pathname) => {
         document.body.innerHTML = ROUTES({ pathname });
@@ -135,7 +142,7 @@ describe("Given I am connected as an employee", () => {
         file: new File(["test"], "testForm.jpeg", { type: "image/jpeg" }),
       };
 
-      console.log("Form test")
+      console.log("Form test");
 
       // Insérer les données simulées
       fireEvent.change(inputExpenseType, {
