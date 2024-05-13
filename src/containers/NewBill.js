@@ -28,6 +28,8 @@ export default class NewBill {
     errorMsg.style.display = "none";
     const file = fileInput.files[0];
 
+    const fileSplit = file.name.split(".");
+
     //Récupération de l'extension pour vérification
     const fileExt = fileSplit[fileSplit.length - 1];
 
